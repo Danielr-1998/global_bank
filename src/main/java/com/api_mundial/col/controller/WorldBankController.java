@@ -22,4 +22,14 @@ public class WorldBankController {
         return worldBankService.obtenerDatosPais(nombre);
     }
 
+    @GetMapping("/pib-per-capita/{nombre}")
+    public Mono<String> obtenerPibPerCapita(@PathVariable String nombre) {
+        return worldBankService.obtenerPibPerCapita(nombre);
+    }
+
+    @GetMapping("/densidad-poblacional/{nombre}")
+    public Mono<String> obtenerDensidadPoblacional(@PathVariable String nombre) {
+        return worldBankService.obtenerDensidadPoblacional(nombre);
+    }
+
 }
