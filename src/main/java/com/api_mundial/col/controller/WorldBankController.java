@@ -2,6 +2,9 @@ package com.api_mundial.col.controller;
 
 import com.api_mundial.col.service.CountryComparisonService;
 import com.api_mundial.col.service.WorldBankService;
+import com.api_mundial.col.service.CountryService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,18 +12,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class WorldBankController {
 
     private final WorldBankService worldBankService;
     private final CountryComparisonService countryComparisonService;
+    private final CountryService countryService;
 
     @Autowired
-    public WorldBankController(WorldBankService worldBankService, CountryComparisonService countryComparisonService) {
+    public WorldBankController(WorldBankService worldBankService, CountryComparisonService countryComparisonService,CountryService countryService) {
         this.worldBankService = worldBankService;
         this.countryComparisonService = countryComparisonService;
+        this.countryService=countryService;
     }
 
     // Ruta para consultar cualquier país basado en el nombre
@@ -57,6 +66,20 @@ public class WorldBankController {
                                     .contentType(MediaType.APPLICATION_PDF)
                                     .body(pdfBytes)
                     );
+                });
+    }
+
+    @GetMapping("/prediccion-pib/{pais}")
+    public Mono<String> predecirPib(@PathVariable String pais) {
+        // Suposición: El código del país es el código ISO de dos letras (ej: "CO" para Colombia)
+        return countryService.obtenerDatosPais(pais)
+                .flatMap(paisData -> {
+                    // Simulación de predicción del PIB
+                    double pibActual = (double) paisData.get("gdp"); // Obtener el PIB actual
+                    double crecimientoEsperado = 0.03;  // Crecimiento anual esperado del 3%
+                    int años = 5;
+                    double pibFuturo = pibActual * Math.pow((1 + crecimientoEsperado), años); // Fórmula de crecimiento compuesto
+                    return Mono.just("El PIB estimado de " + pais + " en " + años + " años es: " + pibFuturo);
                 });
     }
 }
