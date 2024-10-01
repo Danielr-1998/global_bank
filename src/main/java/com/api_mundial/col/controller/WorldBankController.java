@@ -82,4 +82,9 @@ public class WorldBankController {
                     return Mono.just("El PIB estimado de " + pais + " en " + años + " años es: " + pibFuturo);
                 });
     }
+
+    @GetMapping("/inflacion/{pais}/{anio}")
+    public Mono<String> obtenerInflacion(@PathVariable String pais, @PathVariable int anio) {
+        return countryService.obtenerInflacion(pais, anio);
+    }
 }
